@@ -4,7 +4,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, Rocket } from "lucide-react";
+import { CheckCircle2, Rocket, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const services = [
   "Website Creation",
@@ -16,7 +18,10 @@ const services = [
 
 const Index = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [incomeRange, setIncomeRange] = useState("");
+  const { toast } = useToast();
 
   const toggleService = (service: string) => {
     setSelectedServices((prev) =>
@@ -24,9 +29,41 @@ const Index = () => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const submission = {
+      full_name: (formData.get("full_name") as string).trim(),
+      business_name: (formData.get("business_name") as string).trim(),
+      phone: (formData.get("phone") as string).trim(),
+      email: (formData.get("email") as string).trim(),
+      city: (formData.get("city") as string).trim(),
+      description: (formData.get("description") as string).trim(),
+      income_range: incomeRange,
+      services: selectedServices,
+    };
+
+    try {
+      const { error } = await supabase.from("business_submissions").insert(submission);
+      if (error) throw error;
+
+      // Trigger notification edge function (fire and forget)
+      supabase.functions.invoke("notify-submission", { body: submission }).catch(console.error);
+
+      setSubmitted(true);
+    } catch (err: any) {
+      toast({
+        title: "Submission failed",
+        description: err.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -71,14 +108,14 @@ const Index = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input placeholder="Full Name" required className="h-12" />
-            <Input placeholder="Business Name" required className="h-12" />
-            <Input placeholder="WhatsApp / Mobile Number" type="tel" required className="h-12" />
-            <Input placeholder="Email Address" type="email" required className="h-12" />
-            <Input placeholder="City / Address" required className="h-12" />
-            <Textarea placeholder="Short Business Description" required className="min-h-[90px] resize-none" />
+            <Input name="full_name" placeholder="Full Name" required className="h-12" maxLength={100} />
+            <Input name="business_name" placeholder="Business Name" required className="h-12" maxLength={100} />
+            <Input name="phone" placeholder="WhatsApp / Mobile Number" type="tel" required className="h-12" maxLength={20} />
+            <Input name="email" placeholder="Email Address" type="email" required className="h-12" maxLength={255} />
+            <Input name="city" placeholder="City / Address" required className="h-12" maxLength={200} />
+            <Textarea name="description" placeholder="Short Business Description" required className="min-h-[90px] resize-none" maxLength={1000} />
 
-            <Select required>
+            <Select required value={incomeRange} onValueChange={setIncomeRange}>
               <SelectTrigger className="h-12">
                 <SelectValue placeholder="Monthly Income Range" />
               </SelectTrigger>
@@ -95,10 +132,7 @@ const Index = () => {
               <p className="text-sm font-semibold text-foreground mb-3">Services Required</p>
               <div className="space-y-3">
                 {services.map((service) => (
-                  <label
-                    key={service}
-                    className="flex items-center gap-3 cursor-pointer group"
-                  >
+                  <label key={service} className="flex items-center gap-3 cursor-pointer group">
                     <Checkbox
                       checked={selectedServices.includes(service)}
                       onCheckedChange={() => toggleService(service)}
@@ -111,8 +145,13 @@ const Index = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base font-semibold bg-secondary text-secondary-foreground hover:brightness-110 transition-all mt-2">
-              Submit Business Details
+            <Button
+              type="submit"
+              disabled={loading || !incomeRange}
+              className="w-full h-12 text-base font-semibold bg-secondary text-secondary-foreground hover:brightness-110 transition-all mt-2"
+            >
+              {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+              {loading ? "Submitting..." : "Submit Business Details"}
             </Button>
           </form>
         </div>
