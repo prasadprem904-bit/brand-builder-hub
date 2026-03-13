@@ -1,0 +1,4 @@
+project_id = "ofpvfydtwcpvsrfoodqg"
+
+[functions.notify-submission]
+verify_jwt = false
