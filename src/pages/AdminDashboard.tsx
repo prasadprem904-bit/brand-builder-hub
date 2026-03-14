@@ -107,6 +107,24 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               )}
+              <div className="flex gap-2 pt-2">
+                <a
+                  href={`https://wa.me/${s.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hi ${s.full_name}, thank you for submitting your business details for "${s.business_name}". We will help you grow your business online! 🚀`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  WhatsApp
+                </a>
+                <a
+                  href={`mailto:${s.email}?subject=Your Business Submission - ${s.business_name}&body=Hi ${s.full_name},%0A%0AThank you for submitting your business details. We will contact you soon to help grow your business online!%0A%0ABest regards`}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  Email
+                </a>
+              </div>
             </CardContent>
           </Card>
         ))}
