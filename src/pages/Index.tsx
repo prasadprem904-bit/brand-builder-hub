@@ -88,14 +88,11 @@ const Index = () => {
         const { error } = await supabase.from("business_submissions").insert(submission);
         if (error) throw error;
 
-        // Trigger notification (non-blocking - don't let this fail the submission)
+        // Trigger notification (non-blocking)
         try {
-          const { data: notifData } = await supabase.functions.invoke("notify-submission", {
+          await supabase.functions.invoke("notify-submission", {
             body: submission,
           });
-          if (notifData?.whatsapp_url) {
-            window.open(notifData.whatsapp_url, "_blank");
-          }
         } catch (notifErr) {
           console.warn("Notification failed (submission was saved):", notifErr);
         }

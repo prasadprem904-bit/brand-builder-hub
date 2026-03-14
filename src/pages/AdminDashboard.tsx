@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, Mail, Phone, MapPin, Briefcase } from "lucide-react";
+import { Loader2, Users, Mail, Phone, MapPin, Briefcase, MessageCircle } from "lucide-react";
 
 type Submission = Tables<"business_submissions">;
 
