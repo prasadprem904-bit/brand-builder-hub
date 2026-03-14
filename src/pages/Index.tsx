@@ -48,11 +48,19 @@ const Index = () => {
     };
 
     try {
+      // Save to database
       const { error } = await supabase.from("business_submissions").insert(submission);
       if (error) throw error;
 
-      // Trigger notification edge function (fire and forget)
-      supabase.functions.invoke("notify-submission", { body: submission }).catch(console.error);
+      // Trigger notification and get WhatsApp link
+      const { data: notifData } = await supabase.functions.invoke("notify-submission", {
+        body: submission,
+      });
+
+      // Open WhatsApp notification for admin in new tab
+      if (notifData?.whatsapp_url) {
+        window.open(notifData.whatsapp_url, "_blank");
+      }
 
       setSubmitted(true);
     } catch (err: any) {
@@ -84,7 +92,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
       <div className="bg-primary px-4 pt-12 pb-14 text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Rocket className="w-7 h-7 text-secondary" />
@@ -100,7 +107,6 @@ const Index = () => {
         </p>
       </div>
 
-      {/* Form Card */}
       <div className="px-4 -mt-6 pb-12 max-w-lg mx-auto">
         <div className="bg-card rounded-2xl shadow-lg border border-border p-6">
           <h2 className="text-lg font-bold text-foreground mb-5 text-center">
@@ -127,7 +133,6 @@ const Index = () => {
               </SelectContent>
             </Select>
 
-            {/* Services */}
             <div>
               <p className="text-sm font-semibold text-foreground mb-3">Services Required</p>
               <div className="space-y-3">

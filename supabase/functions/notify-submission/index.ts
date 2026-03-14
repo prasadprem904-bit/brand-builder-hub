@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,49 +15,43 @@ serve(async (req) => {
     const body = await req.json();
     const { full_name, business_name, phone, email, city, description, income_range, services } = body;
 
-    const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "";
-    const ADMIN_WHATSAPP = Deno.env.get("ADMIN_WHATSAPP") || "";
+    const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "prasadprem904@gmail.com";
+    const ADMIN_WHATSAPP = Deno.env.get("ADMIN_WHATSAPP") || "916290561559";
 
-    // Build notification content
     const servicesText = services?.length ? services.join(", ") : "None selected";
 
-    // Send admin email notification using Supabase's built-in email (Resend)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    // Log the submission for admin notification
+    // Log for debugging
     console.log("=== NEW BUSINESS LEAD ===");
     console.log(`Name: ${full_name}`);
     console.log(`Business: ${business_name}`);
     console.log(`Phone: ${phone}`);
     console.log(`Email: ${email}`);
     console.log(`City: ${city}`);
-    console.log(`Description: ${description}`);
     console.log(`Income: ${income_range}`);
     console.log(`Services: ${servicesText}`);
+    console.log(`Admin Email: ${ADMIN_EMAIL}`);
     console.log("========================");
 
-    // Build WhatsApp notification URL
-    let whatsappUrl = "";
-    if (ADMIN_WHATSAPP) {
-      const whatsappMessage = encodeURIComponent(
-        `🆕 New Business Lead!\n\n` +
-        `👤 ${full_name}\n` +
-        `🏢 ${business_name}\n` +
-        `📱 ${phone}\n` +
-        `📧 ${email}\n` +
-        `📍 ${city}\n` +
-        `💰 ${income_range}\n` +
-        `🛠 Services: ${servicesText}`
-      );
-      whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP}?text=${whatsappMessage}`;
-    }
+    // Build WhatsApp notification URL for admin
+    const cleanWhatsApp = ADMIN_WHATSAPP.replace(/[^0-9]/g, "");
+    const whatsappMessage = encodeURIComponent(
+      `🆕 *New Business Lead!*\n\n` +
+      `👤 *Name:* ${full_name}\n` +
+      `🏢 *Business:* ${business_name}\n` +
+      `📱 *Phone:* ${phone}\n` +
+      `📧 *Email:* ${email}\n` +
+      `📍 *City:* ${city}\n` +
+      `📝 *Description:* ${description}\n` +
+      `💰 *Income:* ${income_range}\n` +
+      `🛠 *Services:* ${servicesText}`
+    );
+    const whatsappUrl = `https://wa.me/${cleanWhatsApp}?text=${whatsappMessage}`;
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Notification processed",
         whatsapp_url: whatsappUrl,
+        admin_email: ADMIN_EMAIL,
       }),
       {
         status: 200,
