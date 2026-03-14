@@ -36,42 +36,88 @@ const Index = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const full_name = (formData.get("full_name") as string)?.trim();
+    const business_name = (formData.get("business_name") as string)?.trim();
+    const phone = (formData.get("phone") as string)?.trim();
+    const email = (formData.get("email") as string)?.trim();
+    const city = (formData.get("city") as string)?.trim();
+    const description = (formData.get("description") as string)?.trim();
+
+    // Client-side validation
+    if (!full_name || !business_name || !phone || !email || !city || !description || !incomeRange) {
+      toast({
+        title: "सभी fields भरें",
+        description: "कृपया सभी required fields भरें।",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "कृपया सही email address डालें।",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     const submission = {
-      full_name: (formData.get("full_name") as string).trim(),
-      business_name: (formData.get("business_name") as string).trim(),
-      phone: (formData.get("phone") as string).trim(),
-      email: (formData.get("email") as string).trim(),
-      city: (formData.get("city") as string).trim(),
-      description: (formData.get("description") as string).trim(),
+      full_name,
+      business_name,
+      phone,
+      email,
+      city,
+      description,
       income_range: incomeRange,
       services: selectedServices,
     };
 
-    try {
-      // Save to database
-      const { error } = await supabase.from("business_submissions").insert(submission);
-      if (error) throw error;
+    // Retry logic - try up to 3 times
+    let attempts = 0;
+    const maxAttempts = 3;
+    let lastError: any = null;
 
-      // Trigger notification and get WhatsApp link
-      const { data: notifData } = await supabase.functions.invoke("notify-submission", {
-        body: submission,
-      });
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        // Save to database
+        const { error } = await supabase.from("business_submissions").insert(submission);
+        if (error) throw error;
 
-      // Open WhatsApp notification for admin in new tab
-      if (notifData?.whatsapp_url) {
-        window.open(notifData.whatsapp_url, "_blank");
+        // Trigger notification (non-blocking - don't let this fail the submission)
+        try {
+          const { data: notifData } = await supabase.functions.invoke("notify-submission", {
+            body: submission,
+          });
+          if (notifData?.whatsapp_url) {
+            window.open(notifData.whatsapp_url, "_blank");
+          }
+        } catch (notifErr) {
+          console.warn("Notification failed (submission was saved):", notifErr);
+        }
+
+        setSubmitted(true);
+        return; // Success - exit
+      } catch (err: any) {
+        lastError = err;
+        console.error(`Attempt ${attempts} failed:`, err);
+        if (attempts < maxAttempts) {
+          await new Promise((r) => setTimeout(r, 1000 * attempts)); // Wait before retry
+        }
       }
-
-      setSubmitted(true);
-    } catch (err: any) {
-      toast({
-        title: "Submission failed",
-        description: err.message || "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
+
+    // All attempts failed
+    toast({
+      title: "Submission failed",
+      description: lastError?.message || "कृपया दोबारा कोशिश करें। अगर problem बनी रहे तो internet connection चेक करें।",
+      variant: "destructive",
+    });
+    setLoading(false);
   };
 
   if (submitted) {
