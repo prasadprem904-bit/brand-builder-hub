@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, Rocket, Loader2, Sparkles, PartyPopper } from "lucide-react";
+import { CheckCircle2, Rocket, Loader2, Sparkles, PartyPopper, MessageCircle, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -113,10 +113,11 @@ const SuccessScreen = () => {
 };
 
 const Index = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"form" | "whatsapp" | "done">("form");
   const [loading, setLoading] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [incomeRange, setIncomeRange] = useState("");
+  const [whatsappUrl, setWhatsappUrl] = useState("");
   const { toast } = useToast();
 
   const toggleService = (service: string) => {
@@ -194,10 +195,9 @@ const Index = () => {
           `💰 *Income:* ${incomeRange}\n` +
           `🛠 *Services:* ${servicesText}`
         );
-        window.open(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`, "_blank");
-
-        setSubmitted(true);
-        return;
+        setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
+        setStep("whatsapp");
+        setLoading(false);
       } catch (err: any) {
         lastError = err;
         console.error(`Attempt ${attempts} failed:`, err);
@@ -215,10 +215,81 @@ const Index = () => {
     setLoading(false);
   };
 
+  const handleWhatsAppSend = () => {
+    window.open(whatsappUrl, "_blank");
+    setStep("done");
+  };
+
   return (
     <AnimatePresence mode="wait">
-      {submitted ? (
+      {step === "done" ? (
         <SuccessScreen key="success" />
+      ) : step === "whatsapp" ? (
+        <motion.div
+          key="whatsapp"
+          className="min-h-screen flex items-center justify-center bg-background px-4"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.4 }}
+        >
+          <motion.div className="text-center max-w-md mx-auto">
+            <motion.div
+              className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            >
+              <MessageCircle className="w-10 h-10 text-green-600" />
+            </motion.div>
+
+            <motion.h2
+              className="text-2xl font-extrabold text-foreground mb-2"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              Almost Done! 🎯
+            </motion.h2>
+
+            <motion.p
+              className="text-muted-foreground text-base leading-relaxed mb-6"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              आपकी details save हो गई हैं! अब WhatsApp पर message भेजना <strong>ज़रूरी</strong> है ताकि हम आपसे जल्दी contact कर सकें।
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  onClick={handleWhatsAppSend}
+                  className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white gap-2"
+                >
+                  <Send className="w-5 h-5" />
+                  WhatsApp पर Message भेजें
+                </Button>
+              </motion.div>
+            </motion.div>
+
+            <motion.p
+              className="text-xs text-muted-foreground mt-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              WhatsApp खुलेगा → Send बटन दबाएं → Done! ✅
+            </motion.p>
+          </motion.div>
+        </motion.div>
       ) : (
         <motion.div
           key="form"
@@ -235,7 +306,6 @@ const Index = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            {/* Floating particles */}
             {[...Array(6)].map((_, i) => (
               <motion.div
                 key={i}
