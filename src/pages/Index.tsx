@@ -195,10 +195,9 @@ const Index = () => {
           `💰 *Income:* ${incomeRange}\n` +
           `🛠 *Services:* ${servicesText}`
         );
-        window.open(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`, "_blank");
-
-        setSubmitted(true);
-        return;
+        setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
+        setStep("whatsapp");
+        setLoading(false);
       } catch (err: any) {
         lastError = err;
         console.error(`Attempt ${attempts} failed:`, err);
