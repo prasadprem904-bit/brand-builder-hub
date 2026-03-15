@@ -88,17 +88,24 @@ const Index = () => {
         const { error } = await supabase.from("business_submissions").insert(submission);
         if (error) throw error;
 
-        // Trigger notification (non-blocking)
-        try {
-          await supabase.functions.invoke("notify-submission", {
-            body: submission,
-          });
-        } catch (notifErr) {
-          console.warn("Notification failed (submission was saved):", notifErr);
-        }
+        // Open WhatsApp with pre-filled lead details to admin
+        const adminWhatsApp = "916290561559";
+        const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
+        const whatsappMsg = encodeURIComponent(
+          `🆕 *New Business Lead!*\n\n` +
+          `👤 *Name:* ${full_name}\n` +
+          `🏢 *Business:* ${business_name}\n` +
+          `📱 *Phone:* ${phone}\n` +
+          `📧 *Email:* ${email}\n` +
+          `📍 *City:* ${city}\n` +
+          `📝 *Description:* ${description}\n` +
+          `💰 *Income:* ${incomeRange}\n` +
+          `🛠 *Services:* ${servicesText}`
+        );
+        window.open(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`, "_blank");
 
         setSubmitted(true);
-        return; // Success - exit
+        return;
       } catch (err: any) {
         lastError = err;
         console.error(`Attempt ${attempts} failed:`, err);
