@@ -113,10 +113,11 @@ const SuccessScreen = () => {
 };
 
 const Index = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"form" | "whatsapp" | "done">("form");
   const [loading, setLoading] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [incomeRange, setIncomeRange] = useState("");
+  const [whatsappUrl, setWhatsappUrl] = useState("");
   const { toast } = useToast();
 
   const toggleService = (service: string) => {
