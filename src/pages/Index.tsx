@@ -113,11 +113,12 @@ const SuccessScreen = () => {
 };
 
 const Index = () => {
-  const [step, setStep] = useState<"form" | "whatsapp" | "done">("form");
+  const [step, setStep] = useState<"form" | "done">("form");
   const [loading, setLoading] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [incomeRange, setIncomeRange] = useState("");
   const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
   const { toast } = useToast();
 
   const toggleService = (service: string) => {
@@ -172,52 +173,40 @@ const Index = () => {
       services: selectedServices,
     };
 
-    let attempts = 0;
-    const maxAttempts = 3;
-    let lastError: any = null;
+    try {
+      const { error } = await supabase.from("business_submissions").insert(submission);
+      if (error) throw error;
 
-    while (attempts < maxAttempts) {
-      attempts++;
-      try {
-        const { error } = await supabase.from("business_submissions").insert(submission);
-        if (error) throw error;
-
-        const adminWhatsApp = "916290561559";
-        const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
-        const whatsappMsg = encodeURIComponent(
-          `🆕 *New Business Lead!*\n\n` +
-          `👤 *Name:* ${full_name}\n` +
-          `🏢 *Business:* ${business_name}\n` +
-          `📱 *Phone:* ${phone}\n` +
-          `📧 *Email:* ${email}\n` +
-          `📍 *City:* ${city}\n` +
-          `📝 *Description:* ${description}\n` +
-          `💰 *Income:* ${incomeRange}\n` +
-          `🛠 *Services:* ${servicesText}`
-        );
-        setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
-        setStep("whatsapp");
-        setLoading(false);
-      } catch (err: any) {
-        lastError = err;
-        console.error(`Attempt ${attempts} failed:`, err);
-        if (attempts < maxAttempts) {
-          await new Promise((r) => setTimeout(r, 1000 * attempts));
-        }
-      }
+      const adminWhatsApp = "916290561559";
+      const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
+      const whatsappMsg = encodeURIComponent(
+        `🆕 *New Business Lead!*\n\n` +
+        `👤 *Name:* ${full_name}\n` +
+        `🏢 *Business:* ${business_name}\n` +
+        `📱 *Phone:* ${phone}\n` +
+        `📧 *Email:* ${email}\n` +
+        `📍 *City:* ${city}\n` +
+        `📝 *Description:* ${description}\n` +
+        `💰 *Income:* ${incomeRange}\n` +
+        `🛠 *Services:* ${servicesText}`
+      );
+      setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
+      setStep("done");
+      setTimeout(() => setShowWhatsApp(true), 2500);
+      setLoading(false);
+    } catch (err: any) {
+      console.error("Submission failed:", err);
+      toast({
+        title: "Submission failed",
+        description: err?.message || "कृपया दोबारा कोशिश करें।",
+        variant: "destructive",
+      });
+      setLoading(false);
     }
-
-    toast({
-      title: "Submission failed",
-      description: lastError?.message || "कृपया दोबारा कोशिश करें।",
-      variant: "destructive",
-    });
-    setLoading(false);
   };
 
   const handleWhatsAppSend = () => {
     window.open(whatsappUrl, "_blank");
-    setTimeout(() => setStep("done"), 1500);
   };
 
   return (
