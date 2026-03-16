@@ -18,9 +18,8 @@ const services = [
   "Brand Logo Design",
 ];
 
-const SuccessScreen = () => {
+const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () => void; showWhatsApp: boolean }) => {
   useEffect(() => {
-    // Fire confetti burst
     const duration = 3000;
     const end = Date.now() + duration;
 
@@ -42,7 +41,6 @@ const SuccessScreen = () => {
       if (Date.now() < end) requestAnimationFrame(frame);
     };
 
-    // Initial big burst
     confetti({
       particleCount: 100,
       spread: 70,
@@ -55,7 +53,7 @@ const SuccessScreen = () => {
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -94,7 +92,7 @@ const SuccessScreen = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          Your business details have been submitted successfully. We will contact you soon on WhatsApp! 🚀
+          आपकी details successfully submit हो गई हैं! 🚀
         </motion.p>
 
         <motion.div
@@ -104,20 +102,52 @@ const SuccessScreen = () => {
           transition={{ delay: 1 }}
         >
           <Sparkles className="w-4 h-4 text-secondary" />
-          <span>Your journey to online growth starts now</span>
+          <span>अब WhatsApp पर message भेजें</span>
           <Sparkles className="w-4 h-4 text-secondary" />
         </motion.div>
       </motion.div>
+
+      {/* Floating WhatsApp Button */}
+      <AnimatePresence>
+        {showWhatsApp && (
+          <motion.button
+            onClick={onWhatsAppSend}
+            className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-[#25D366] text-white shadow-lg flex items-center justify-center z-50 hover:brightness-110"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <MessageCircle className="w-8 h-8" fill="white" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {showWhatsApp && (
+        <motion.div
+          className="fixed bottom-28 right-6 bg-card border border-border rounded-xl px-4 py-3 shadow-xl max-w-[220px] z-50"
+          initial={{ opacity: 0, y: 10, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.3, type: "spring" }}
+        >
+          <p className="text-sm font-semibold text-foreground">📩 WhatsApp पर भेजें!</p>
+          <p className="text-xs text-muted-foreground mt-1">Details हमारे WhatsApp पर send करें</p>
+          <div className="absolute bottom-[-6px] right-10 w-3 h-3 bg-card border-r border-b border-border rotate-45" />
+        </motion.div>
+      )}
     </motion.div>
   );
 };
 
 const Index = () => {
-  const [step, setStep] = useState<"form" | "whatsapp" | "done">("form");
+  const [step, setStep] = useState<"form" | "done">("form");
   const [loading, setLoading] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [incomeRange, setIncomeRange] = useState("");
   const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
   const { toast } = useToast();
 
   const toggleService = (service: string) => {
@@ -172,124 +202,46 @@ const Index = () => {
       services: selectedServices,
     };
 
-    let attempts = 0;
-    const maxAttempts = 3;
-    let lastError: any = null;
+    try {
+      const { error } = await supabase.from("business_submissions").insert(submission);
+      if (error) throw error;
 
-    while (attempts < maxAttempts) {
-      attempts++;
-      try {
-        const { error } = await supabase.from("business_submissions").insert(submission);
-        if (error) throw error;
-
-        const adminWhatsApp = "916290561559";
-        const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
-        const whatsappMsg = encodeURIComponent(
-          `🆕 *New Business Lead!*\n\n` +
-          `👤 *Name:* ${full_name}\n` +
-          `🏢 *Business:* ${business_name}\n` +
-          `📱 *Phone:* ${phone}\n` +
-          `📧 *Email:* ${email}\n` +
-          `📍 *City:* ${city}\n` +
-          `📝 *Description:* ${description}\n` +
-          `💰 *Income:* ${incomeRange}\n` +
-          `🛠 *Services:* ${servicesText}`
-        );
-        setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
-        setStep("whatsapp");
-        setLoading(false);
-      } catch (err: any) {
-        lastError = err;
-        console.error(`Attempt ${attempts} failed:`, err);
-        if (attempts < maxAttempts) {
-          await new Promise((r) => setTimeout(r, 1000 * attempts));
-        }
-      }
+      const adminWhatsApp = "916290561559";
+      const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
+      const whatsappMsg = encodeURIComponent(
+        `🆕 *New Business Lead!*\n\n` +
+        `👤 *Name:* ${full_name}\n` +
+        `🏢 *Business:* ${business_name}\n` +
+        `📱 *Phone:* ${phone}\n` +
+        `📧 *Email:* ${email}\n` +
+        `📍 *City:* ${city}\n` +
+        `📝 *Description:* ${description}\n` +
+        `💰 *Income:* ${incomeRange}\n` +
+        `🛠 *Services:* ${servicesText}`
+      );
+      setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
+      setStep("done");
+      setTimeout(() => setShowWhatsApp(true), 2500);
+      setLoading(false);
+    } catch (err: any) {
+      console.error("Submission failed:", err);
+      toast({
+        title: "Submission failed",
+        description: err?.message || "कृपया दोबारा कोशिश करें।",
+        variant: "destructive",
+      });
+      setLoading(false);
     }
-
-    toast({
-      title: "Submission failed",
-      description: lastError?.message || "कृपया दोबारा कोशिश करें।",
-      variant: "destructive",
-    });
-    setLoading(false);
   };
 
   const handleWhatsAppSend = () => {
     window.open(whatsappUrl, "_blank");
-    setStep("done");
   };
 
   return (
     <AnimatePresence mode="wait">
       {step === "done" ? (
-        <SuccessScreen key="success" />
-      ) : step === "whatsapp" ? (
-        <motion.div
-          key="whatsapp"
-          className="min-h-screen flex items-center justify-center bg-background px-4"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.4 }}
-        >
-          <motion.div className="text-center max-w-md mx-auto">
-            <motion.div
-              className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            >
-              <MessageCircle className="w-10 h-10 text-green-600" />
-            </motion.div>
-
-            <motion.h2
-              className="text-2xl font-extrabold text-foreground mb-2"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              Almost Done! 🎯
-            </motion.h2>
-
-            <motion.p
-              className="text-muted-foreground text-base leading-relaxed mb-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              आपकी details save हो गई हैं! अब WhatsApp पर message भेजना <strong>ज़रूरी</strong> है ताकि हम आपसे जल्दी contact कर सकें।
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Button
-                  onClick={handleWhatsAppSend}
-                  className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white gap-2"
-                >
-                  <Send className="w-5 h-5" />
-                  WhatsApp पर Message भेजें
-                </Button>
-              </motion.div>
-            </motion.div>
-
-            <motion.p
-              className="text-xs text-muted-foreground mt-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-            >
-              WhatsApp खुलेगा → Send बटन दबाएं → Done! ✅
-            </motion.p>
-          </motion.div>
-        </motion.div>
+        <SuccessScreen key="success" onWhatsAppSend={handleWhatsAppSend} showWhatsApp={showWhatsApp} />
       ) : (
         <motion.div
           key="form"
