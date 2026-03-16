@@ -19,36 +19,62 @@ const services = [
 ];
 
 const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () => void; showWhatsApp: boolean }) => {
-  useEffect(() => {
-    const duration = 3000;
-    const end = Date.now() + duration;
+  const [showCheckmark, setShowCheckmark] = useState(false);
 
+  useEffect(() => {
+    // Stage 1: Big center burst
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.5, x: 0.5 },
+      colors: ["#2563eb", "#eab308", "#22c55e", "#f43f5e", "#a855f7", "#06b6d4"],
+      startVelocity: 45,
+      gravity: 0.8,
+      ticks: 300,
+    });
+
+    // Stage 2: Side cannons
+    setTimeout(() => {
+      confetti({ particleCount: 60, angle: 60, spread: 70, origin: { x: 0, y: 0.65 }, colors: ["#2563eb", "#eab308", "#22c55e"], startVelocity: 55 });
+      confetti({ particleCount: 60, angle: 120, spread: 70, origin: { x: 1, y: 0.65 }, colors: ["#f43f5e", "#a855f7", "#06b6d4"], startVelocity: 55 });
+    }, 400);
+
+    // Stage 3: Star shower
+    setTimeout(() => {
+      confetti({
+        particleCount: 80,
+        spread: 160,
+        origin: { y: 0, x: 0.5 },
+        colors: ["#fbbf24", "#f472b6", "#34d399", "#60a5fa"],
+        startVelocity: 30,
+        gravity: 1.2,
+        shapes: ["star"],
+        scalar: 1.2,
+        ticks: 200,
+      });
+    }, 900);
+
+    // Stage 4: Continuous sparkle
+    const duration = 4000;
+    const end = Date.now() + duration;
     const frame = () => {
       confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.7 },
-        colors: ["#2563eb", "#eab308", "#22c55e", "#f43f5e"],
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.7 },
-        colors: ["#2563eb", "#eab308", "#22c55e", "#f43f5e"],
+        particleCount: 2,
+        angle: 60 + Math.random() * 60,
+        spread: 40,
+        origin: { x: Math.random(), y: Math.random() * 0.4 },
+        colors: ["#2563eb", "#eab308", "#22c55e", "#f43f5e", "#a855f7"],
+        startVelocity: 20,
+        gravity: 0.6,
+        scalar: 0.8,
+        drift: Math.random() - 0.5,
       });
       if (Date.now() < end) requestAnimationFrame(frame);
     };
+    setTimeout(() => frame(), 1200);
 
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#2563eb", "#eab308", "#22c55e", "#f43f5e", "#a855f7"],
-    });
-
-    frame();
+    // Show checkmark after initial burst
+    setTimeout(() => setShowCheckmark(true), 300);
   }, []);
 
   return (
@@ -58,83 +84,175 @@ const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () =>
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <motion.div className="text-center max-w-md mx-auto">
+      {/* Animated background rings */}
+      {[...Array(3)].map((_, i) => (
         <motion.div
-          className="w-24 h-24 rounded-full bg-accent flex items-center justify-center mx-auto mb-6"
+          key={i}
+          className="absolute rounded-full border border-primary/10"
+          style={{ width: 200 + i * 150, height: 200 + i * 150 }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [0, 1.2, 1], opacity: [0, 0.3, 0.1] }}
+          transition={{ delay: 0.2 + i * 0.3, duration: 1.5, ease: "easeOut" }}
+        />
+      ))}
+
+      <motion.div className="text-center max-w-md mx-auto relative z-10">
+        {/* Glowing checkmark circle */}
+        <motion.div
+          className="w-28 h-28 rounded-full bg-accent flex items-center justify-center mx-auto mb-6 relative"
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+          transition={{ type: "spring", stiffness: 180, damping: 12, delay: 0.2 }}
         >
+          {/* Pulse ring */}
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.6, type: "spring", stiffness: 300 }}
-          >
-            <CheckCircle2 className="w-12 h-12 text-primary" />
-          </motion.div>
+            className="absolute inset-0 rounded-full bg-primary/20"
+            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute inset-0 rounded-full bg-primary/10"
+            animate={{ scale: [1, 1.8, 1], opacity: [0.3, 0, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          />
+          <AnimatePresence>
+            {showCheckmark && (
+              <motion.div
+                initial={{ scale: 0, rotate: -90 }}
+                animate={{ scale: [0, 1.3, 1], rotate: 0 }}
+                transition={{ duration: 0.6, type: "spring", stiffness: 300 }}
+              >
+                <CheckCircle2 className="w-14 h-14 text-primary" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
+        {/* Floating emoji decorations */}
+        {["🎉", "🚀", "⭐", "💫", "🎊"].map((emoji, i) => (
+          <motion.span
+            key={i}
+            className="absolute text-2xl pointer-events-none"
+            style={{
+              left: `${10 + i * 20}%`,
+              top: `${20 + (i % 2) * 40}%`,
+            }}
+            initial={{ opacity: 0, y: 50, scale: 0 }}
+            animate={{
+              opacity: [0, 1, 0.7],
+              y: [50, -20, -10],
+              scale: [0, 1.2, 1],
+              rotate: [0, i % 2 === 0 ? 20 : -20, 0],
+            }}
+            transition={{ delay: 0.8 + i * 0.15, duration: 1.2, ease: "easeOut" }}
+          >
+            {emoji}
+          </motion.span>
+        ))}
+
+        {/* Title with staggered letter reveal */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
         >
           <div className="flex items-center justify-center gap-2 mb-2">
-            <PartyPopper className="w-6 h-6 text-secondary" />
-            <h2 className="text-3xl font-extrabold text-foreground">Thank you!</h2>
-            <PartyPopper className="w-6 h-6 text-secondary" />
+            <motion.div animate={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 0.6, delay: 1, repeat: 2 }}>
+              <PartyPopper className="w-7 h-7 text-secondary" />
+            </motion.div>
+            <motion.h2
+              className="text-4xl font-extrabold text-foreground"
+              initial={{ letterSpacing: "0.5em", opacity: 0 }}
+              animate={{ letterSpacing: "0em", opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
+            >
+              Thank you!
+            </motion.h2>
+            <motion.div animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 0.6, delay: 1, repeat: 2 }}>
+              <PartyPopper className="w-7 h-7 text-secondary" />
+            </motion.div>
           </div>
         </motion.div>
 
         <motion.p
-          className="text-muted-foreground text-base leading-relaxed mt-3"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          className="text-muted-foreground text-lg leading-relaxed mt-3 font-medium"
+          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ delay: 0.9, duration: 0.6 }}
         >
           आपकी details successfully submit हो गई हैं! 🚀
         </motion.p>
 
+        {/* Animated divider */}
         <motion.div
-          className="mt-6 flex items-center justify-center gap-1 text-sm text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          className="h-0.5 bg-gradient-to-r from-transparent via-primary/40 to-transparent mx-auto mt-5"
+          initial={{ width: 0 }}
+          animate={{ width: "80%" }}
+          transition={{ delay: 1.1, duration: 0.8, ease: "easeOut" }}
+        />
+
+        <motion.div
+          className="mt-5 flex items-center justify-center gap-2 text-sm text-muted-foreground"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.3, type: "spring" }}
         >
-          <Sparkles className="w-4 h-4 text-secondary" />
-          <span>अब WhatsApp पर message भेजें</span>
-          <Sparkles className="w-4 h-4 text-secondary" />
+          <motion.div animate={{ rotate: [0, 360] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
+            <Sparkles className="w-5 h-5 text-secondary" />
+          </motion.div>
+          <span className="font-medium">अब WhatsApp पर message भेजें</span>
+          <motion.div animate={{ rotate: [0, -360] }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
+            <Sparkles className="w-5 h-5 text-secondary" />
+          </motion.div>
         </motion.div>
       </motion.div>
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Button with glow */}
       <AnimatePresence>
         {showWhatsApp && (
           <motion.button
             onClick={onWhatsAppSend}
-            className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-[#25D366] text-white shadow-lg flex items-center justify-center z-50 hover:brightness-110"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
+            className="fixed bottom-8 right-8 w-18 h-18 rounded-full bg-[#25D366] text-primary-foreground shadow-[0_0_30px_rgba(37,211,102,0.5)] flex items-center justify-center z-50"
+            initial={{ scale: 0, rotate: -180, y: 100 }}
+            animate={{ scale: 1, rotate: 0, y: 0 }}
             exit={{ scale: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            whileHover={{ scale: 1.15, shadow: "0 0 40px rgba(37,211,102,0.7)" }}
             whileTap={{ scale: 0.9 }}
           >
-            <MessageCircle className="w-8 h-8" fill="white" />
+            {/* Pulse ring around button */}
+            <motion.div
+              className="absolute inset-0 rounded-full bg-[#25D366]/30"
+              animate={{ scale: [1, 1.6], opacity: [0.6, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+            />
+            <motion.div
+              className="absolute inset-0 rounded-full bg-[#25D366]/20"
+              animate={{ scale: [1, 2], opacity: [0.4, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut", delay: 0.3 }}
+            />
+            <MessageCircle className="w-9 h-9 relative z-10" fill="white" />
           </motion.button>
         )}
       </AnimatePresence>
 
+      {/* Tooltip bubble */}
       {showWhatsApp && (
         <motion.div
-          className="fixed bottom-28 right-6 bg-card border border-border rounded-xl px-4 py-3 shadow-xl max-w-[220px] z-50"
-          initial={{ opacity: 0, y: 10, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.3, type: "spring" }}
+          className="fixed bottom-28 right-5 bg-card border border-border rounded-2xl px-5 py-3.5 shadow-2xl max-w-[240px] z-50"
+          initial={{ opacity: 0, y: 20, scale: 0.8 }}
+          animate={{ opacity: 1, y: [20, -5, 0], scale: 1 }}
+          transition={{ delay: 0.4, type: "spring", stiffness: 150 }}
         >
-          <p className="text-sm font-semibold text-foreground">📩 WhatsApp पर भेजें!</p>
-          <p className="text-xs text-muted-foreground mt-1">Details हमारे WhatsApp पर send करें</p>
-          <div className="absolute bottom-[-6px] right-10 w-3 h-3 bg-card border-r border-b border-border rotate-45" />
+          <motion.p
+            className="text-sm font-bold text-foreground"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            📩 WhatsApp पर भेजें!
+          </motion.p>
+          <p className="text-xs text-muted-foreground mt-1.5">Details हमारे WhatsApp पर send करें</p>
+          <div className="absolute bottom-[-6px] right-12 w-3 h-3 bg-card border-r border-b border-border rotate-45" />
         </motion.div>
       )}
     </motion.div>
