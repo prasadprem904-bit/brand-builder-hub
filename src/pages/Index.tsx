@@ -217,7 +217,7 @@ const Index = () => {
 
   const handleWhatsAppSend = () => {
     window.open(whatsappUrl, "_blank");
-    setStep("done");
+    setTimeout(() => setStep("done"), 1500);
   };
 
   return (
