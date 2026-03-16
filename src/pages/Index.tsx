@@ -18,9 +18,8 @@ const services = [
   "Brand Logo Design",
 ];
 
-const SuccessScreen = () => {
+const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () => void; showWhatsApp: boolean }) => {
   useEffect(() => {
-    // Fire confetti burst
     const duration = 3000;
     const end = Date.now() + duration;
 
@@ -42,7 +41,6 @@ const SuccessScreen = () => {
       if (Date.now() < end) requestAnimationFrame(frame);
     };
 
-    // Initial big burst
     confetti({
       particleCount: 100,
       spread: 70,
@@ -55,7 +53,7 @@ const SuccessScreen = () => {
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -94,7 +92,7 @@ const SuccessScreen = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          Your business details have been submitted successfully. We will contact you soon on WhatsApp! 🚀
+          आपकी details successfully submit हो गई हैं! 🚀
         </motion.p>
 
         <motion.div
@@ -104,10 +102,41 @@ const SuccessScreen = () => {
           transition={{ delay: 1 }}
         >
           <Sparkles className="w-4 h-4 text-secondary" />
-          <span>Your journey to online growth starts now</span>
+          <span>अब WhatsApp पर message भेजें</span>
           <Sparkles className="w-4 h-4 text-secondary" />
         </motion.div>
       </motion.div>
+
+      {/* Floating WhatsApp Button */}
+      <AnimatePresence>
+        {showWhatsApp && (
+          <motion.button
+            onClick={onWhatsAppSend}
+            className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-[#25D366] text-white shadow-lg flex items-center justify-center z-50 hover:brightness-110"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <MessageCircle className="w-8 h-8" fill="white" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {showWhatsApp && (
+        <motion.div
+          className="fixed bottom-28 right-6 bg-card border border-border rounded-xl px-4 py-3 shadow-xl max-w-[220px] z-50"
+          initial={{ opacity: 0, y: 10, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.3, type: "spring" }}
+        >
+          <p className="text-sm font-semibold text-foreground">📩 WhatsApp पर भेजें!</p>
+          <p className="text-xs text-muted-foreground mt-1">Details हमारे WhatsApp पर send करें</p>
+          <div className="absolute bottom-[-6px] right-10 w-3 h-3 bg-card border-r border-b border-border rotate-45" />
+        </motion.div>
+      )}
     </motion.div>
   );
 };
