@@ -217,7 +217,7 @@ const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () =>
             animate={{ scale: 1, rotate: 0, y: 0 }}
             exit={{ scale: 0 }}
             transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            whileHover={{ scale: 1.15, shadow: "0 0 40px rgba(37,211,102,0.7)" }}
+            whileHover={{ scale: 1.15 }}
             whileTap={{ scale: 0.9 }}
           >
             {/* Pulse ring around button */}
