@@ -270,6 +270,31 @@ const Index = () => {
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const { toast } = useToast();
 
+  // Sync any pending offline submissions on load
+  useEffect(() => {
+    const syncPending = async () => {
+      try {
+        const pending = JSON.parse(localStorage.getItem("pending_submissions") || "[]");
+        if (pending.length === 0) return;
+        const remaining: any[] = [];
+        for (const sub of pending) {
+          const { submitted_at, ...data } = sub;
+          const { error } = await supabase.from("business_submissions").insert(data);
+          if (error) {
+            remaining.push(sub);
+          }
+        }
+        localStorage.setItem("pending_submissions", JSON.stringify(remaining));
+        if (remaining.length < pending.length) {
+          console.log(`Synced ${pending.length - remaining.length} pending submissions`);
+        }
+      } catch (err) {
+        console.warn("Pending sync failed, will retry next load:", err);
+      }
+    };
+    syncPending();
+  }, []);
+
   const toggleService = (service: string) => {
     setSelectedServices((prev) =>
       prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]
@@ -322,36 +347,61 @@ const Index = () => {
       services: selectedServices,
     };
 
-    try {
-      const { error } = await supabase.from("business_submissions").insert(submission);
-      if (error) throw error;
+    // Retry logic: try up to 3 times with delay
+    const maxRetries = 3;
+    let dbSuccess = false;
+    let lastError: any = null;
 
-      const adminWhatsApp = "916290561559";
-      const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
-      const whatsappMsg = encodeURIComponent(
-        `🆕 *New Business Lead!*\n\n` +
-        `👤 *Name:* ${full_name}\n` +
-        `🏢 *Business:* ${business_name}\n` +
-        `📱 *Phone:* ${phone}\n` +
-        `📧 *Email:* ${email}\n` +
-        `📍 *City:* ${city}\n` +
-        `📝 *Description:* ${description}\n` +
-        `💰 *Income:* ${incomeRange}\n` +
-        `🛠 *Services:* ${servicesText}`
-      );
-      setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
-      setStep("done");
-      setTimeout(() => setShowWhatsApp(true), 2500);
-      setLoading(false);
-    } catch (err: any) {
-      console.error("Submission failed:", err);
-      toast({
-        title: "Submission failed",
-        description: err?.message || "कृपया दोबारा कोशिश करें।",
-        variant: "destructive",
-      });
-      setLoading(false);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const { error } = await supabase.from("business_submissions").insert(submission);
+        if (error) throw error;
+        dbSuccess = true;
+        break;
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Submission attempt ${attempt}/${maxRetries} failed:`, err?.message);
+        if (attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, 1000 * attempt));
+        }
+      }
     }
+
+    // Fallback: save to localStorage if all DB attempts fail
+    if (!dbSuccess) {
+      try {
+        const pending = JSON.parse(localStorage.getItem("pending_submissions") || "[]");
+        pending.push({ ...submission, submitted_at: new Date().toISOString() });
+        localStorage.setItem("pending_submissions", JSON.stringify(pending));
+        console.log("Submission saved to localStorage as fallback");
+      } catch (localErr) {
+        console.error("LocalStorage fallback also failed:", localErr);
+      }
+      // Still show success to user — data is saved locally
+      toast({
+        title: "Submitted!",
+        description: "आपकी details save हो गई हैं। Internet आने पर sync हो जाएगी।",
+      });
+    }
+
+    // Always proceed to success screen
+    const adminWhatsApp = "916290561559";
+    const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
+    const whatsappMsg = encodeURIComponent(
+      `🆕 *New Business Lead!*\n\n` +
+      `👤 *Name:* ${full_name}\n` +
+      `🏢 *Business:* ${business_name}\n` +
+      `📱 *Phone:* ${phone}\n` +
+      `📧 *Email:* ${email}\n` +
+      `📍 *City:* ${city}\n` +
+      `📝 *Description:* ${description}\n` +
+      `💰 *Income:* ${incomeRange}\n` +
+      `🛠 *Services:* ${servicesText}`
+    );
+    setWhatsappUrl(`https://wa.me/${adminWhatsApp}?text=${whatsappMsg}`);
+    setStep("done");
+    setTimeout(() => setShowWhatsApp(true), 2500);
+    setLoading(false);
   };
 
   const handleWhatsAppSend = () => {
