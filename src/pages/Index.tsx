@@ -270,6 +270,31 @@ const Index = () => {
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const { toast } = useToast();
 
+  // Sync any pending offline submissions on load
+  useEffect(() => {
+    const syncPending = async () => {
+      try {
+        const pending = JSON.parse(localStorage.getItem("pending_submissions") || "[]");
+        if (pending.length === 0) return;
+        const remaining: any[] = [];
+        for (const sub of pending) {
+          const { submitted_at, ...data } = sub;
+          const { error } = await supabase.from("business_submissions").insert(data);
+          if (error) {
+            remaining.push(sub);
+          }
+        }
+        localStorage.setItem("pending_submissions", JSON.stringify(remaining));
+        if (remaining.length < pending.length) {
+          console.log(`Synced ${pending.length - remaining.length} pending submissions`);
+        }
+      } catch (err) {
+        console.warn("Pending sync failed, will retry next load:", err);
+      }
+    };
+    syncPending();
+  }, []);
+
   const toggleService = (service: string) => {
     setSelectedServices((prev) =>
       prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]
