@@ -390,44 +390,37 @@ const Index = () => {
       services: selectedServices,
     };
 
-    // Retry logic: try up to 3 times with delay
-    const maxRetries = 3;
-    let dbSuccess = false;
-    let lastError: any = null;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const { error } = await supabase.from("business_submissions").insert(submission);
-        if (error) throw error;
-        dbSuccess = true;
-        break;
-      } catch (err: any) {
-        lastError = err;
-        console.warn(`Submission attempt ${attempt}/${maxRetries} failed:`, err?.message);
-        if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, 1000 * attempt));
+    // INSTANT SUBMIT — fire DB save in background, show success immediately.
+    // Keeps UX blazing fast even when 100s of leads submit non-stop.
+    const saveInBackground = async () => {
+      const maxRetries = 3;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const { error } = await supabase.from("business_submissions").insert(submission);
+          if (error) throw error;
+          console.log("✅ Submission saved to DB");
+          return;
+        } catch (err: any) {
+          console.warn(`BG attempt ${attempt}/${maxRetries} failed:`, err?.message);
+          if (attempt < maxRetries) {
+            await new Promise((r) => setTimeout(r, 400 * attempt));
+          }
         }
       }
-    }
-
-    // Fallback: save to localStorage if all DB attempts fail
-    if (!dbSuccess) {
+      // Fallback: queue in localStorage; auto-sync effect will retry later
       try {
         const pending = JSON.parse(localStorage.getItem("pending_submissions") || "[]");
         pending.push({ ...submission, submitted_at: new Date().toISOString() });
         localStorage.setItem("pending_submissions", JSON.stringify(pending));
-        console.log("Submission saved to localStorage as fallback");
+        console.log("📦 Saved to localStorage for later sync");
       } catch (localErr) {
-        console.error("LocalStorage fallback also failed:", localErr);
+        console.error("LocalStorage fallback failed:", localErr);
       }
-      // Still show success to user — data is saved locally
-      toast({
-        title: "Submitted!",
-        description: "आपकी details save हो गई हैं। Internet आने पर sync हो जाएगी।",
-      });
-    }
+    };
+    // Fire and forget — DO NOT await. User sees success instantly.
+    void saveInBackground();
 
-    // Always proceed to success screen
+    // Immediately proceed to success screen — zero network wait
     const adminWhatsApp = "916290561559";
     const servicesText = selectedServices.length > 0 ? selectedServices.join(", ") : "None";
     const whatsappMsg = encodeURIComponent(
