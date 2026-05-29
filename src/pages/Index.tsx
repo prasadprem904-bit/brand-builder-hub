@@ -526,7 +526,51 @@ const Index = () => {
             >
               Submit your business details and we will help you build your brand.
             </motion.p>
+
+            {/* Limited time offer banner */}
+            <motion.div
+              className="mt-6 mx-auto max-w-md relative"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.8, type: "spring", stiffness: 180, damping: 14 }}
+            >
+              <motion.div
+                className="absolute -inset-1 rounded-2xl blur-md opacity-70"
+                style={{ background: "linear-gradient(90deg, hsl(45 100% 51%), hsl(0 84% 60%), hsl(45 100% 51%))", backgroundSize: "200% 100%" }}
+                animate={{ backgroundPosition: ["0% 50%", "200% 50%"] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              />
+              <div className="relative rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-400 px-4 py-3 shadow-xl border-2 border-yellow-200">
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <motion.span
+                    className="text-xl"
+                    animate={{ rotate: [0, 20, -20, 0], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    🔥
+                  </motion.span>
+                  <span className="text-[11px] font-black uppercase tracking-wider text-red-700 bg-white/70 px-2 py-0.5 rounded-full">
+                    Limited Offer
+                  </span>
+                  <motion.span
+                    className="text-xl"
+                    animate={{ rotate: [0, -20, 20, 0], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
+                  >
+                    🎁
+                  </motion.span>
+                </div>
+                <p className="text-center text-sm sm:text-base font-extrabold text-gray-900 mt-1 leading-tight">
+                  First <span className="text-red-700 text-lg">10</span> Business Owners get{" "}
+                  <span className="text-red-700">1 Year FREE!</span>
+                </p>
+                <p className="text-center text-[11px] font-semibold text-gray-800/80 mt-0.5">
+                  जल्दी करें — सिर्फ पहले 10 लोगों के लिए 🚀
+                </p>
+              </div>
+            </motion.div>
           </motion.div>
+
 
           {/* Form Card */}
           <motion.div
