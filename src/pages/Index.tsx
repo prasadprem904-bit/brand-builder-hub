@@ -305,10 +305,10 @@ const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () =>
 };
 
 // ============ PREMIUM ENTRY OFFER POPUP ============
-const OfferPopup = ({ onClose, onClaim }: { onClose: () => void; onClaim: () => void }) => {
-  const SPOTS_LEFT = 5;
-  const TOTAL_SPOTS = 10;
-  const filled = TOTAL_SPOTS - SPOTS_LEFT;
+const OfferPopup = ({ onClose, onClaim, spotsLeft, totalSpots }: { onClose: () => void; onClaim: () => void; spotsLeft: number; totalSpots: number }) => {
+  const SPOTS_LEFT = spotsLeft;
+  const TOTAL_SPOTS = totalSpots;
+  const filled = Math.max(0, TOTAL_SPOTS - SPOTS_LEFT);
 
   useEffect(() => {
     // Lock body scroll
@@ -621,11 +621,54 @@ const Index = () => {
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [showOffer, setShowOffer] = useState(false);
+  const [spotsLeft, setSpotsLeft] = useState<number>(5);
+  const [totalSpots, setTotalSpots] = useState<number>(10);
 
   // Show premium entry popup on mount
   useEffect(() => {
     const t = setTimeout(() => setShowOffer(true), 600);
     return () => clearTimeout(t);
+  }, []);
+
+  // Live spots remaining — fetch once + subscribe to realtime changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSpots = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("offer_settings")
+          .select("spots_remaining, total_spots")
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!isMounted || error || !data) return;
+        setSpotsLeft(data.spots_remaining);
+        setTotalSpots(data.total_spots);
+      } catch (err) {
+        console.warn("offer_settings fetch failed:", err);
+      }
+    };
+    loadSpots();
+
+    const channel = supabase
+      .channel("offer_settings_live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "offer_settings" },
+        (payload: any) => {
+          const row = payload.new ?? payload.old;
+          if (!row) return;
+          if (typeof row.spots_remaining === "number") setSpotsLeft(row.spots_remaining);
+          if (typeof row.total_spots === "number") setTotalSpots(row.total_spots);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
   const { toast } = useToast();
 
@@ -766,6 +809,8 @@ const Index = () => {
         {showOffer && (
           <OfferPopup
             key="offer"
+            spotsLeft={spotsLeft}
+            totalSpots={totalSpots}
             onClose={() => setShowOffer(false)}
             onClaim={() => {
               setShowOffer(false);
@@ -885,11 +930,11 @@ const Index = () => {
                   </motion.span>
                 </div>
                 <p className="text-center text-sm sm:text-base font-extrabold text-gray-900 mt-1 leading-tight">
-                  Only <span className="text-red-700 text-lg">5</span> Spots Left —{" "}
+                  Only <span className="text-red-700 text-lg">{spotsLeft}</span> Spots Left —{" "}
                   <span className="text-red-700">1 Year FREE!</span>
                 </p>
                 <p className="text-center text-[11px] font-semibold text-gray-800/80 mt-0.5">
-                  जल्दी करें — सिर्फ 5 business owners बचे हैं 🚀
+                  जल्दी करें — सिर्फ {spotsLeft} business owners बचे हैं 🚀
                 </p>
               </div>
             </motion.div>
