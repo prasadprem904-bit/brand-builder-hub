@@ -305,10 +305,10 @@ const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () =>
 };
 
 // ============ PREMIUM ENTRY OFFER POPUP ============
-const OfferPopup = ({ onClose, onClaim }: { onClose: () => void; onClaim: () => void }) => {
-  const SPOTS_LEFT = 5;
-  const TOTAL_SPOTS = 10;
-  const filled = TOTAL_SPOTS - SPOTS_LEFT;
+const OfferPopup = ({ onClose, onClaim, spotsLeft, totalSpots }: { onClose: () => void; onClaim: () => void; spotsLeft: number; totalSpots: number }) => {
+  const SPOTS_LEFT = spotsLeft;
+  const TOTAL_SPOTS = totalSpots;
+  const filled = Math.max(0, TOTAL_SPOTS - SPOTS_LEFT);
 
   useEffect(() => {
     // Lock body scroll
