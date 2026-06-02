@@ -761,6 +761,21 @@ const Index = () => {
   };
 
   return (
+    <>
+      <AnimatePresence>
+        {showOffer && (
+          <OfferPopup
+            key="offer"
+            onClose={() => setShowOffer(false)}
+            onClaim={() => {
+              setShowOffer(false);
+              setTimeout(() => {
+                document.querySelector("form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 200);
+            }}
+          />
+        )}
+      </AnimatePresence>
     <AnimatePresence mode="wait">
       {step === "done" ? (
         <SuccessScreen key="success" onWhatsAppSend={handleWhatsAppSend} showWhatsApp={showWhatsApp} />
