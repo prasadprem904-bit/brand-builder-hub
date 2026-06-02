@@ -620,6 +620,13 @@ const Index = () => {
   const [incomeRange, setIncomeRange] = useState("");
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [showOffer, setShowOffer] = useState(false);
+
+  // Show premium entry popup on mount
+  useEffect(() => {
+    const t = setTimeout(() => setShowOffer(true), 600);
+    return () => clearTimeout(t);
+  }, []);
   const { toast } = useToast();
 
   // Sync any pending offline submissions on load
