@@ -53,6 +53,27 @@ export type Database = {
         }
         Relationships: []
       }
+      offer_settings: {
+        Row: {
+          id: string
+          spots_remaining: number
+          total_spots: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          spots_remaining?: number
+          total_spots?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          spots_remaining?: number
+          total_spots?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
