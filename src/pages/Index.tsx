@@ -344,38 +344,29 @@ const OfferPopup = ({ onClose, onClaim, spotsLeft, totalSpots }: { onClose: () =
         onClick={onClose}
       />
 
-      {/* Animated gradient glow orbs */}
-      <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full blur-[120px] opacity-40 pointer-events-none"
+      {/* Soft gradient glow — single static layer (GPU-friendly) */}
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full blur-[100px] opacity-30 pointer-events-none"
         style={{ background: "radial-gradient(circle, #FFD700, transparent 70%)" }}
-        animate={{ x: [-120, 120, -120], y: [-80, 80, -80], scale: [1, 1.2, 1] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div
-        className="absolute w-[500px] h-[500px] rounded-full blur-[120px] opacity-30 pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FF3D6E, transparent 70%)", right: -100, bottom: -100 }}
-        animate={{ x: [80, -80, 80], y: [60, -60, 60], scale: [1.1, 0.9, 1.1] }}
-        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+      <div
+        className="absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-25 pointer-events-none"
+        style={{ background: "radial-gradient(circle, #FF3D6E, transparent 70%)", right: -80, bottom: -80 }}
       />
 
-      {/* Floating sparkles */}
-      {[...Array(18)].map((_, i) => {
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
-        const delay = Math.random() * 3;
-        const size = 4 + Math.random() * 8;
+      {/* Floating sparkles — fewer, lighter, no rotate */}
+      {[...Array(8)].map((_, i) => {
+        const left = (i * 13 + 7) % 100;
+        const top = (i * 19 + 11) % 100;
+        const delay = (i % 4) * 0.6;
+        const size = 6 + (i % 3) * 3;
         return (
           <motion.div
             key={i}
             className="absolute pointer-events-none"
-            style={{ left: `${left}%`, top: `${top}%` }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0, 1, 0],
-              scale: [0.5, 1, 0.5],
-              rotate: [0, 180, 360],
-            }}
-            transition={{ duration: 3 + Math.random() * 2, delay, repeat: Infinity, ease: "easeInOut" }}
+            style={{ left: `${left}%`, top: `${top}%`, willChange: "opacity, transform" }}
+            animate={{ y: [0, -14, 0], opacity: [0, 1, 0] }}
+            transition={{ duration: 3.2, delay, repeat: Infinity, ease: "easeInOut" }}
           >
             <Sparkles style={{ width: size, height: size, color: i % 2 === 0 ? "#FFD700" : "#fff" }} />
           </motion.div>
@@ -385,23 +376,21 @@ const OfferPopup = ({ onClose, onClaim, spotsLeft, totalSpots }: { onClose: () =
       {/* Popup card */}
       <motion.div
         className="relative z-10 w-full max-w-md"
-        initial={{ scale: 0.4, opacity: 0, y: 80, rotateX: -25 }}
-        animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
-        exit={{ scale: 0.5, opacity: 0, y: 60 }}
-        transition={{ type: "spring", stiffness: 180, damping: 18 }}
-        style={{ perspective: 1000 }}
+        initial={{ scale: 0.92, opacity: 0, y: 24 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 16 }}
+        transition={{ type: "spring", stiffness: 220, damping: 24, mass: 0.8 }}
+        style={{ willChange: "transform, opacity" }}
       >
-        {/* Animated rainbow glow border */}
-        <motion.div
-          className="absolute -inset-[2px] rounded-3xl opacity-90 pointer-events-none"
+        {/* Static gradient glow border (no animated blur — keeps it smooth) */}
+        <div
+          className="absolute -inset-[2px] rounded-3xl opacity-60 pointer-events-none"
           style={{
-            background: "linear-gradient(135deg, #FFD700, #FF3D6E, #6366f1, #22c55e, #FFD700)",
-            backgroundSize: "300% 300%",
-            filter: "blur(8px)",
+            background: "linear-gradient(135deg, #FFD700, #FF3D6E, #6366f1, #FFD700)",
+            filter: "blur(6px)",
           }}
-          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         />
+
 
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#0a0e27] via-[#1a0b2e] to-[#0a0e27] border border-white/10 shadow-2xl">
           {/* Close button */}
