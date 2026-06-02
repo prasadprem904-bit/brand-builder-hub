@@ -885,11 +885,11 @@ const Index = () => {
                   </motion.span>
                 </div>
                 <p className="text-center text-sm sm:text-base font-extrabold text-gray-900 mt-1 leading-tight">
-                  First <span className="text-red-700 text-lg">10</span> Business Owners get{" "}
+                  Only <span className="text-red-700 text-lg">5</span> Spots Left —{" "}
                   <span className="text-red-700">1 Year FREE!</span>
                 </p>
                 <p className="text-center text-[11px] font-semibold text-gray-800/80 mt-0.5">
-                  जल्दी करें — सिर्फ पहले 10 लोगों के लिए 🚀
+                  जल्दी करें — सिर्फ 5 business owners बचे हैं 🚀
                 </p>
               </div>
             </motion.div>
