@@ -809,6 +809,8 @@ const Index = () => {
         {showOffer && (
           <OfferPopup
             key="offer"
+            spotsLeft={spotsLeft}
+            totalSpots={totalSpots}
             onClose={() => setShowOffer(false)}
             onClaim={() => {
               setShowOffer(false);
