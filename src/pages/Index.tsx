@@ -304,6 +304,315 @@ const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () =>
   );
 };
 
+// ============ PREMIUM ENTRY OFFER POPUP ============
+const OfferPopup = ({ onClose, onClaim }: { onClose: () => void; onClaim: () => void }) => {
+  const SPOTS_LEFT = 5;
+  const TOTAL_SPOTS = 10;
+  const filled = TOTAL_SPOTS - SPOTS_LEFT;
+
+  useEffect(() => {
+    // Lock body scroll
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    // Subtle confetti burst on open
+    const t = setTimeout(() => {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.35 },
+        colors: ["#FFD700", "#FF4D4D", "#2563eb", "#22c55e", "#a855f7"],
+        scalar: 0.9,
+      });
+    }, 350);
+    return () => {
+      document.body.style.overflow = original;
+      clearTimeout(t);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      {/* Cinematic backdrop */}
+      <motion.div
+        className="absolute inset-0 bg-black/85 backdrop-blur-md"
+        onClick={onClose}
+      />
+
+      {/* Animated gradient glow orbs */}
+      <motion.div
+        className="absolute w-[600px] h-[600px] rounded-full blur-[120px] opacity-40 pointer-events-none"
+        style={{ background: "radial-gradient(circle, #FFD700, transparent 70%)" }}
+        animate={{ x: [-120, 120, -120], y: [-80, 80, -80], scale: [1, 1.2, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute w-[500px] h-[500px] rounded-full blur-[120px] opacity-30 pointer-events-none"
+        style={{ background: "radial-gradient(circle, #FF3D6E, transparent 70%)", right: -100, bottom: -100 }}
+        animate={{ x: [80, -80, 80], y: [60, -60, 60], scale: [1.1, 0.9, 1.1] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Floating sparkles */}
+      {[...Array(18)].map((_, i) => {
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        const delay = Math.random() * 3;
+        const size = 4 + Math.random() * 8;
+        return (
+          <motion.div
+            key={i}
+            className="absolute pointer-events-none"
+            style={{ left: `${left}%`, top: `${top}%` }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0, 1, 0],
+              scale: [0.5, 1, 0.5],
+              rotate: [0, 180, 360],
+            }}
+            transition={{ duration: 3 + Math.random() * 2, delay, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Sparkles style={{ width: size, height: size, color: i % 2 === 0 ? "#FFD700" : "#fff" }} />
+          </motion.div>
+        );
+      })}
+
+      {/* Popup card */}
+      <motion.div
+        className="relative z-10 w-full max-w-md"
+        initial={{ scale: 0.4, opacity: 0, y: 80, rotateX: -25 }}
+        animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
+        exit={{ scale: 0.5, opacity: 0, y: 60 }}
+        transition={{ type: "spring", stiffness: 180, damping: 18 }}
+        style={{ perspective: 1000 }}
+      >
+        {/* Animated rainbow glow border */}
+        <motion.div
+          className="absolute -inset-[2px] rounded-3xl opacity-90 pointer-events-none"
+          style={{
+            background: "linear-gradient(135deg, #FFD700, #FF3D6E, #6366f1, #22c55e, #FFD700)",
+            backgroundSize: "300% 300%",
+            filter: "blur(8px)",
+          }}
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        />
+
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#0a0e27] via-[#1a0b2e] to-[#0a0e27] border border-white/10 shadow-2xl">
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur flex items-center justify-center transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4 text-white" />
+          </button>
+
+          {/* Top metallic shine */}
+          <motion.div
+            className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, #FFD700, transparent)" }}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+
+          <div className="relative px-6 pt-8 pb-7">
+            {/* Premium crown badge */}
+            <motion.div
+              className="flex justify-center mb-4"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 12 }}
+            >
+              <div className="relative">
+                <motion.div
+                  className="absolute inset-0 rounded-full blur-xl"
+                  style={{ background: "radial-gradient(circle, #FFD700, transparent)" }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <motion.div
+                  className="relative w-20 h-20 rounded-full flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg, #FFD700, #FFA500, #FF4500)" }}
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  <Crown className="w-10 h-10 text-white drop-shadow-lg" />
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* EXCLUSIVE label with shine */}
+            <motion.div
+              className="flex justify-center mb-3"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="relative overflow-hidden rounded-full px-4 py-1 border border-yellow-400/50 bg-gradient-to-r from-yellow-500/20 via-yellow-400/30 to-yellow-500/20">
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                  animate={{ x: ["-100%", "200%"] }}
+                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
+                />
+                <span className="relative text-[10px] font-black tracking-[0.25em] text-yellow-300 uppercase">
+                  ⚡ Exclusive Offer ⚡
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h2
+              className="text-center text-2xl sm:text-3xl font-extrabold leading-tight mb-2"
+              initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ delay: 0.6, duration: 0.7 }}
+            >
+              <span className="bg-gradient-to-r from-yellow-300 via-yellow-100 to-yellow-300 bg-clip-text text-transparent">
+                1 Year FREE Service
+              </span>
+            </motion.h2>
+
+            {/* Spots counter — huge animated number */}
+            <motion.div
+              className="text-center mb-4"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.75, type: "spring", stiffness: 200 }}
+            >
+              <p className="text-white/70 text-xs uppercase tracking-widest mb-1">Only</p>
+              <div className="flex items-center justify-center gap-2">
+                <motion.span
+                  className="text-7xl font-black bg-gradient-to-b from-red-400 via-red-500 to-red-700 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(239,68,68,0.6)]"
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  {SPOTS_LEFT}
+                </motion.span>
+                <div className="text-left">
+                  <p className="text-white font-bold text-sm leading-tight">Spots</p>
+                  <p className="text-red-400 font-bold text-sm leading-tight">Left!</p>
+                </div>
+              </div>
+              <motion.p
+                className="text-yellow-300/90 text-xs font-semibold mt-1 flex items-center justify-center gap-1"
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <Flame className="w-3 h-3" /> सिर्फ {SPOTS_LEFT} business owners बचे हैं <Flame className="w-3 h-3" />
+              </motion.p>
+            </motion.div>
+
+            {/* Progress bar showing claimed spots */}
+            <motion.div
+              className="mb-5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+            >
+              <div className="flex justify-between text-[10px] text-white/60 mb-1 px-1">
+                <span>{filled} Claimed</span>
+                <span>{SPOTS_LEFT} Remaining</span>
+              </div>
+              <div className="h-2.5 rounded-full bg-white/10 overflow-hidden relative">
+                <motion.div
+                  className="h-full rounded-full relative"
+                  style={{ background: "linear-gradient(90deg, #ef4444, #f59e0b, #FFD700)" }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(filled / TOTAL_SPOTS) * 100}%` }}
+                  transition={{ delay: 1, duration: 1.2, ease: "easeOut" }}
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 0.5 }}
+                  />
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Feature pills */}
+            <motion.div
+              className="grid grid-cols-2 gap-2 mb-5"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1 }}
+            >
+              {[
+                { icon: Zap, text: "Website Build" },
+                { icon: Gift, text: "Free Domain" },
+                { icon: Sparkles, text: "Google Listing" },
+                { icon: Rocket, text: "Brand Logo" },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.text}
+                  className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2 backdrop-blur"
+                  initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.2 + i * 0.08 }}
+                >
+                  <item.icon className="w-3.5 h-3.5 text-yellow-300 flex-shrink-0" />
+                  <span className="text-white text-xs font-semibold">{item.text}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* CTA Button */}
+            <motion.button
+              onClick={onClaim}
+              className="relative w-full py-4 rounded-2xl font-extrabold text-base text-gray-900 overflow-hidden group"
+              style={{ background: "linear-gradient(135deg, #FFD700, #FFA500, #FFD700)", backgroundSize: "200% 200%" }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{
+                opacity: { delay: 1.4, duration: 0.5 },
+                y: { delay: 1.4, duration: 0.5 },
+                backgroundPosition: { duration: 3, repeat: Infinity, ease: "linear" },
+              }}
+              whileHover={{ scale: 1.03, boxShadow: "0 0 40px rgba(255,215,0,0.6)" }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 0.8 }}
+              />
+              <span className="relative flex items-center justify-center gap-2">
+                <Crown className="w-5 h-5" />
+                Claim My FREE Year Now
+                <motion.span
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  →
+                </motion.span>
+              </span>
+            </motion.button>
+
+            <motion.p
+              className="text-center text-white/50 text-[10px] mt-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.7 }}
+            >
+              No credit card • Instant activation • Limited to first {TOTAL_SPOTS} owners
+            </motion.p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const Index = () => {
   const [step, setStep] = useState<"form" | "done">("form");
   const [loading, setLoading] = useState(false);
