@@ -82,23 +82,19 @@ const SuccessScreen = ({ onWhatsAppSend, showWhatsApp }: { onWhatsAppSend: () =>
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* Floating particles */}
-      {[...Array(30)].map((_, i) => (
+      {/* Floating particles — reduced for smoothness */}
+      {[...Array(12)].map((_, i) => (
         <Particle key={i} index={i} />
       ))}
 
-      {/* Animated gradient orbs */}
-      <motion.div
-        className="absolute w-[500px] h-[500px] rounded-full opacity-20 blur-[120px] pointer-events-none"
+      {/* Static gradient orbs (no animation — GPU-friendly) */}
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full opacity-20 blur-[100px] pointer-events-none"
         style={{ background: "radial-gradient(circle, hsl(217 91% 50%), transparent)" }}
-        animate={{ x: [-100, 100, -100], y: [-50, 50, -50], scale: [1, 1.3, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div
+      <div
         className="absolute w-[400px] h-[400px] rounded-full opacity-15 blur-[100px] pointer-events-none"
         style={{ background: "radial-gradient(circle, hsl(45 100% 51%), transparent)", right: -100, top: -100 }}
-        animate={{ x: [50, -50, 50], y: [30, -30, 30], scale: [1.2, 1, 1.2] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
 
       {/* Main popup card */}
