@@ -621,11 +621,54 @@ const Index = () => {
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [showOffer, setShowOffer] = useState(false);
+  const [spotsLeft, setSpotsLeft] = useState<number>(5);
+  const [totalSpots, setTotalSpots] = useState<number>(10);
 
   // Show premium entry popup on mount
   useEffect(() => {
     const t = setTimeout(() => setShowOffer(true), 600);
     return () => clearTimeout(t);
+  }, []);
+
+  // Live spots remaining — fetch once + subscribe to realtime changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSpots = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("offer_settings")
+          .select("spots_remaining, total_spots")
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!isMounted || error || !data) return;
+        setSpotsLeft(data.spots_remaining);
+        setTotalSpots(data.total_spots);
+      } catch (err) {
+        console.warn("offer_settings fetch failed:", err);
+      }
+    };
+    loadSpots();
+
+    const channel = supabase
+      .channel("offer_settings_live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "offer_settings" },
+        (payload: any) => {
+          const row = payload.new ?? payload.old;
+          if (!row) return;
+          if (typeof row.spots_remaining === "number") setSpotsLeft(row.spots_remaining);
+          if (typeof row.total_spots === "number") setTotalSpots(row.total_spots);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
   const { toast } = useToast();
 
