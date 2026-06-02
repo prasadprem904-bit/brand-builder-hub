@@ -930,11 +930,11 @@ const Index = () => {
                   </motion.span>
                 </div>
                 <p className="text-center text-sm sm:text-base font-extrabold text-gray-900 mt-1 leading-tight">
-                  Only <span className="text-red-700 text-lg">5</span> Spots Left —{" "}
+                  Only <span className="text-red-700 text-lg">{spotsLeft}</span> Spots Left —{" "}
                   <span className="text-red-700">1 Year FREE!</span>
                 </p>
                 <p className="text-center text-[11px] font-semibold text-gray-800/80 mt-0.5">
-                  जल्दी करें — सिर्फ 5 business owners बचे हैं 🚀
+                  जल्दी करें — सिर्फ {spotsLeft} business owners बचे हैं 🚀
                 </p>
               </div>
             </motion.div>
