@@ -827,241 +827,197 @@ const Index = () => {
           className="min-h-screen bg-background"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
+          exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Hero Section */}
-          <motion.div
-            className="bg-primary px-4 pt-12 pb-14 text-center relative overflow-hidden"
-            initial={{ y: -60, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 rounded-full bg-primary-foreground/10"
-                style={{
-                  left: `${15 + i * 15}%`,
-                  top: `${20 + (i % 3) * 25}%`,
-                }}
-                animate={{
-                  y: [0, -15, 0],
-                  opacity: [0.3, 0.7, 0.3],
-                }}
-                transition={{
-                  duration: 2 + i * 0.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: i * 0.3,
-                }}
-              />
-            ))}
+          <Navbar />
+          <Hero spotsLeft={spotsLeft} />
+          <TrustedBy />
+          <Services />
+          <WhyUs />
+          <HowItWorks />
+          <Pricing />
+          <Testimonials />
 
-            <motion.div
-              className="flex items-center justify-center gap-2 mb-4"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-            >
-              <motion.div
-                animate={{ rotate: [0, 15, -15, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                <Rocket className="w-7 h-7 text-secondary" />
-              </motion.div>
-              <span className="text-sm font-semibold tracking-widest uppercase text-primary-foreground/70">
-                Business Growth
-              </span>
-            </motion.div>
-
-            <motion.h1
-              className="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight mb-3"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-            >
-              Grow Your Business Online
-            </motion.h1>
-
-            <motion.p
-              className="text-primary-foreground/80 text-base max-w-sm mx-auto"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-            >
-              Submit your business details and we will help you build your brand.
-            </motion.p>
-
-            {/* Limited time offer banner */}
-            <motion.div
-              className="mt-6 mx-auto max-w-md relative"
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: 0.8, type: "spring", stiffness: 180, damping: 14 }}
-            >
-              <motion.div
-                className="absolute -inset-1 rounded-2xl blur-md opacity-70"
-                style={{ background: "linear-gradient(90deg, hsl(45 100% 51%), hsl(0 84% 60%), hsl(45 100% 51%))", backgroundSize: "200% 100%" }}
-                animate={{ backgroundPosition: ["0% 50%", "200% 50%"] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              />
-              <div className="relative rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-400 px-4 py-3 shadow-xl border-2 border-yellow-200">
-                <div className="flex items-center justify-center gap-2 flex-wrap">
-                  <motion.span
-                    className="text-xl"
-                    animate={{ rotate: [0, 20, -20, 0], scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    🔥
-                  </motion.span>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-red-700 bg-white/70 px-2 py-0.5 rounded-full">
-                    Limited Offer
-                  </span>
-                  <motion.span
-                    className="text-xl"
-                    animate={{ rotate: [0, -20, 20, 0], scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-                  >
-                    🎁
-                  </motion.span>
-                </div>
-                <p className="text-center text-sm sm:text-base font-extrabold text-gray-900 mt-1 leading-tight">
-                  Only <span className="text-red-700 text-lg">{spotsLeft}</span> Spots Left —{" "}
-                  <span className="text-red-700">1 Year FREE!</span>
+          {/* Contact section with existing submission form */}
+          <section id="contact" className="section-bg py-24 sm:py-32">
+            <div className="mx-auto max-w-6xl px-4">
+              <div className="text-center max-w-2xl mx-auto mb-14">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">
+                  Get Started
                 </p>
-                <p className="text-center text-[11px] font-semibold text-gray-800/80 mt-0.5">
-                  जल्दी करें — सिर्फ {spotsLeft} business owners बचे हैं 🚀
+                <h2 className="text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] text-foreground">
+                  Tell us about your <span className="gradient-text">business</span>
+                </h2>
+                <p className="mt-4 text-base text-foreground/60">
+                  Fill this in 60 seconds. We'll reach out on WhatsApp within an hour.
                 </p>
               </div>
-            </motion.div>
-          </motion.div>
 
-
-          {/* Form Card */}
-          <motion.div
-            className="px-4 -mt-6 pb-12 max-w-lg mx-auto"
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.6, ease: "easeOut" }}
-          >
-            <motion.div
-              className="bg-card rounded-2xl shadow-lg border border-border p-6"
-              whileHover={{ boxShadow: "0 20px 40px -15px hsl(217 91% 50% / 0.15)" }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.h2
-                className="text-lg font-bold text-foreground mb-5 text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
-                Submit Your Business Details
-              </motion.h2>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {[
-                  { name: "full_name", placeholder: "Full Name", type: "text", delay: 0.1 },
-                  { name: "business_name", placeholder: "Business Name", type: "text", delay: 0.15 },
-                  { name: "phone", placeholder: "WhatsApp / Mobile Number", type: "tel", delay: 0.2 },
-                  { name: "email", placeholder: "Email Address", type: "email", delay: 0.25 },
-                  { name: "city", placeholder: "City / Address", type: "text", delay: 0.3 },
-                ].map((field) => (
-                  <motion.div
-                    key={field.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + field.delay, duration: 0.4 }}
-                  >
-                    <Input
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      type={field.type}
-                      required
-                      className="h-12 transition-all duration-200 focus:scale-[1.01]"
-                      maxLength={field.name === "email" ? 255 : field.name === "city" ? 200 : 100}
-                    />
-                  </motion.div>
-                ))}
-
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                {/* Contact info card */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.05, duration: 0.4 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="lg:col-span-2 space-y-4"
                 >
-                  <Textarea
-                    name="description"
-                    placeholder="Short Business Description"
-                    required
-                    className="min-h-[90px] resize-none transition-all duration-200 focus:scale-[1.01]"
-                    maxLength={1000}
-                  />
-                </motion.div>
+                  <div className="card-premium p-6">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-[hsl(217_91%_60%)] flex items-center justify-center btn-glow mb-4">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">WhatsApp us</h3>
+                    <p className="text-sm text-foreground/60 mt-1">Fastest way to reach us</p>
+                    <a
+                      href="https://wa.me/916290561559"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:gap-2 transition-all"
+                    >
+                      +91 62905 61559 <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
 
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.1, duration: 0.4 }}
-                >
-                  <Select required value={incomeRange} onValueChange={setIncomeRange}>
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Monthly Income Range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-10k">₹0 – ₹10k</SelectItem>
-                      <SelectItem value="10k-50k">₹10k – ₹50k</SelectItem>
-                      <SelectItem value="50k-1L">₹50k – ₹1L</SelectItem>
-                      <SelectItem value="1L+">₹1L+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </motion.div>
+                  <div className="card-premium p-6">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-[hsl(217_91%_60%)] flex items-center justify-center btn-glow mb-4">
+                      <Mail className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">Email</h3>
+                    <p className="text-sm text-foreground/60 mt-1">We reply within 2 hours</p>
+                    <a
+                      href="mailto:prasadprem904@gmail.com"
+                      className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:gap-2 transition-all"
+                    >
+                      prasadprem904@gmail.com <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
 
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.15, duration: 0.4 }}
-                >
-                  <p className="text-sm font-semibold text-foreground mb-3">Services Required</p>
-                  <div className="space-y-3">
-                    {services.map((service, i) => (
-                      <motion.label
-                        key={service}
-                        className="flex items-center gap-3 cursor-pointer group"
-                        initial={{ opacity: 0, x: -15 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.2 + i * 0.05, duration: 0.3 }}
-                        whileHover={{ x: 4 }}
-                      >
-                        <Checkbox
-                          checked={selectedServices.includes(service)}
-                          onCheckedChange={() => toggleService(service)}
-                        />
-                        <span className="text-sm text-foreground group-hover:text-primary transition-colors">
-                          {service}
-                        </span>
-                      </motion.label>
-                    ))}
+                  <div className="card-premium p-6 bg-gradient-to-br from-primary to-[hsl(224_76%_48%)] text-white border-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4" />
+                      <span className="text-xs font-bold uppercase tracking-widest">Limited offer</span>
+                    </div>
+                    <p className="text-2xl font-extrabold leading-tight">
+                      Only {spotsLeft} spots left
+                    </p>
+                    <p className="text-white/80 text-sm mt-1">1 Year FREE maintenance for the next {spotsLeft} businesses.</p>
                   </div>
                 </motion.div>
 
+                {/* Form card */}
                 <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.4, duration: 0.4 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="lg:col-span-3 card-premium p-6 sm:p-8"
                 >
-                  <Button
-                    type="submit"
-                    disabled={loading || !incomeRange}
-                    className="w-full h-12 text-base font-semibold bg-secondary text-secondary-foreground hover:brightness-110 transition-all mt-2"
-                  >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
-                    {loading ? "Submitting..." : "Submit Business Details"}
-                  </Button>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { name: "full_name", placeholder: "Full Name", type: "text" },
+                        { name: "business_name", placeholder: "Business Name", type: "text" },
+                        { name: "phone", placeholder: "WhatsApp / Mobile", type: "tel" },
+                        { name: "email", placeholder: "Email Address", type: "email" },
+                      ].map((field) => (
+                        <Input
+                          key={field.name}
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          type={field.type}
+                          required
+                          className="h-12 rounded-xl bg-white border-border/70 focus-visible:ring-primary/40"
+                          maxLength={field.name === "email" ? 255 : 100}
+                        />
+                      ))}
+                    </div>
+
+                    <Input
+                      name="city"
+                      placeholder="City / Address"
+                      type="text"
+                      required
+                      className="h-12 rounded-xl bg-white border-border/70 focus-visible:ring-primary/40"
+                      maxLength={200}
+                    />
+
+                    <Textarea
+                      name="description"
+                      placeholder="Tell us briefly about your business…"
+                      required
+                      className="min-h-[110px] resize-none rounded-xl bg-white border-border/70 focus-visible:ring-primary/40"
+                      maxLength={1000}
+                    />
+
+                    <Select required value={incomeRange} onValueChange={setIncomeRange}>
+                      <SelectTrigger className="h-12 rounded-xl bg-white border-border/70">
+                        <SelectValue placeholder="Monthly Income Range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0-10k">₹0 – ₹10k</SelectItem>
+                        <SelectItem value="10k-50k">₹10k – ₹50k</SelectItem>
+                        <SelectItem value="50k-1L">₹50k – ₹1L</SelectItem>
+                        <SelectItem value="1L+">₹1L+</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-3">Services Required</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {services.map((service) => {
+                          const active = selectedServices.includes(service);
+                          return (
+                            <label
+                              key={service}
+                              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer border transition-all ${
+                                active
+                                  ? "bg-primary/5 border-primary/40"
+                                  : "bg-white border-border/70 hover:border-primary/30"
+                              }`}
+                            >
+                              <Checkbox
+                                checked={active}
+                                onCheckedChange={() => toggleService(service)}
+                              />
+                              <span className="text-sm text-foreground font-medium">{service}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={loading || !incomeRange}
+                      className="w-full h-13 py-4 text-base font-bold bg-primary text-primary-foreground hover:brightness-110 btn-glow rounded-2xl transition-all"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Submitting…
+                        </>
+                      ) : (
+                        <>
+                          Submit Business Details
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-center text-foreground/40">
+                      By submitting, you agree to be contacted on WhatsApp & email.
+                    </p>
+                  </form>
                 </motion.div>
-              </form>
-            </motion.div>
-          </motion.div>
+              </div>
+            </div>
+          </section>
+
+          <FAQ />
+          <CTASection />
+          <Footer />
         </motion.div>
+
       )}
     </AnimatePresence>
     </>
