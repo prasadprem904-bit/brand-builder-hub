@@ -4,11 +4,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, Rocket, Loader2, Sparkles, PartyPopper, MessageCircle, Send, X, Crown, Zap, Gift, Flame } from "lucide-react";
+import { CheckCircle2, Rocket, Loader2, Sparkles, PartyPopper, MessageCircle, Send, X, Crown, Zap, Gift, Flame, Mail, Phone, MapPin, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import Navbar from "@/components/site/Navbar";
+import Hero from "@/components/site/Hero";
+import TrustedBy from "@/components/site/TrustedBy";
+import Services from "@/components/site/Services";
+import WhyUs from "@/components/site/WhyUs";
+import HowItWorks from "@/components/site/HowItWorks";
+import Pricing from "@/components/site/Pricing";
+import Testimonials from "@/components/site/Testimonials";
+import FAQ from "@/components/site/FAQ";
+import CTASection from "@/components/site/CTASection";
+import Footer from "@/components/site/Footer";
+
 
 const services = [
   "Website Creation",
